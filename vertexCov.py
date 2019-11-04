@@ -1,6 +1,5 @@
 import sys
-#import pyskip
-#import skiplist 
+import copy 
 import numpy as np
 
 # reduction VC1 not applicable as I am eliminating all isolated indices on read
@@ -36,11 +35,6 @@ def createGraph():
         if (edge[0] in minVertexCover) or (edge[1] in minVertexCover): #ignore such edge
                continue
 
-        # #if a vertice is already in min cover, then ignore its edges
-        # if ignoredVertices.find(edge[0]) is not None \
-        #     or ignoredVertices.find(edge[1]) is not None:
-        #     continue
-        
         if k < 1 :
             print("Min Vertex Cover is not possible for this graph with parameter k = " + str(k))
             exit
@@ -60,9 +54,9 @@ def createGraph():
         checkEntries(edge[0])
         checkEntries(edge[1])
 
-# checking if current amount of edges already exceeds k
-# if exceeds, add vertex to min cover and remove its edges
 def checkEntries(vertice):
+    ''' checking if current amount of edges already exceeds k '''
+    ''' if exceeds, add vertex to min cover and remove its edges'''
     global k
     global graph
 
@@ -70,16 +64,18 @@ def checkEntries(vertice):
         if len(graph[vertice]) > k :
             k = k - 1
             minVertexCover.add(vertice)
-
-            for edge in graph[vertice]:
-                if(len(graph[edge]) == 1):
-                    #delete whole lonely vertice
-                    del graph[edge]
-                else:
-                    graph[edge].remove(vertice)
-            del graph[vertice]
+            deleteVertice(graph, vertice)
             return True
     return False
+
+def deleteVertice(graph, vertice):
+    for edge in graph[vertice]:
+        if(len(graph[edge]) == 1):
+            #delete whole lonely vertice
+            del graph[edge]
+        else:
+            graph[edge].remove(vertice)
+    del graph[vertice]
 
 def reductionVC2():
     shouldRestart = True
@@ -97,33 +93,35 @@ def reductionVC2():
                 break
 
 def findMinCover():
-    for vertice in graph:
-        recursiveInclusion(graph, vertex):
+    global minVertexCover
+    minVertexCover = set() # make a new blank one
+    return recursiveInclusion(graph, k)
 
+def recursiveInclusion(graph, k):
+    #k = k - len(vertices)
+    if (k < 0):
+        return False # exceeded the min cover
+    if (len(graph) == 0):
+        return True # no more vertices left
+    global minVertexCover
+    for vertex in graph.keys():
+        minVertexCover.add(vertex)
+        k = k - 1
+        graphCopy = copy.deepcopy(graph)
+        #delete all edges
+        deleteVertice(graphCopy, vertex)
+        if recursiveInclusion(graphCopy, k):
+            return True
 
-
-def recursiveInclusion(graph, vertex):
-    edges = graph[vertex]
-     
-
-    pass
+    # if all vertices returned False, it's a No instance
+    return False
 
 if __name__ == "__main__":
     initialize()
     createGraph()
     reductionVC2()
     findMinCover()
-    # we get a clean graph here
 
-
-    #li1 = [1, 3, 4, 4, 4, 6, 7] 
-    #print(binarySearch(li1, 4))
-    #print(li1)
-    #print(ignoredVertices)
-    # for item in ignoredVertices:
-    #     print(item.value)
-    
-    #print(ignoredVertices.find(4))
     for vertice in sorted(graph):
         print(str(vertice) + " - " + str(graph[vertice]))
         #print(str(vertice) + " - " + str([i.value for i in graph[vertice]]))
