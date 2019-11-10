@@ -64,18 +64,24 @@ def checkEntries(vertice):
         if len(graph[vertice]) > k :
             k = k - 1
             minVertexCover.add(vertice)
-            deleteVertice(graph, vertice)
+            deleteVertex(graph, vertice)
             return True
     return False
 
-def deleteVertice(graph, vertice):
-    for edge in graph[vertice]:
+def deleteVertex(graph, vertex):
+    for edge in graph[vertex]:
         if(len(graph[edge]) == 1):
             #delete whole lonely vertice
             del graph[edge]
         else:
-            graph[edge].remove(vertice)
-    del graph[vertice]
+            graph[edge].remove(vertex)
+    del graph[vertex]
+
+def returnVertex(graph, vertex, edges):
+    graph[vertex] = edges
+    for edge in edges:
+        graph[edge].add(vertex)
+    pass
 
 def reductionVC2():
     shouldRestart = True
@@ -107,11 +113,13 @@ def recursiveInclusion(graph, k):
     for vertex in graph.keys():
         minVertexCover.add(vertex)
         k = k - 1
-        graphCopy = copy.deepcopy(graph)
+        edges = graph[vertex]
         #delete all edges
-        deleteVertice(graphCopy, vertex)
-        if recursiveInclusion(graphCopy, k):
+        deleteVertex(graph, vertex)
+        if recursiveInclusion(graph, k):
             return True
+        returnVertex(graph, vertex, edges)
+
 
     # if all vertices returned False, it's a No instance
     return False
